@@ -1,1 +1,126 @@
+# ===============================
+# OS FILES
+# ===============================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===============================
+# IDE / EDITOR
+# ===============================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.log
+
+# ===============================
+# NODE / FRONTEND (Vite, React, TS)
+# ===============================
+
+# Dependencies
 node_modules/
+
+# Build outputs
+dist/
+build/
+.out/
+.next/
+coverage/
+
+# Vite cache
+.vite/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+backend/.env
+
+# TypeScript
+*.tsbuildinfo
+
+# ===============================
+# PYTHON BACKEND
+# ===============================
+
+# Virtual environments
+venv/
+env/
+.venv/
+backend/venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints
+
+# ===============================
+# DATABASE FILES
+# ===============================
+*.sqlite3
+*.db
+
+# ===============================
+# CHROMADB / VECTOR DB
+# ===============================
+chroma/
+chromadb/
+*.parquet
+
+# ===============================
+# LOG FILES
+# ===============================
+*.log
+logs/
+
+# ===============================
+# TEMP FILES
+# ===============================
+tmp/
+temp/
+
+# ===============================
+# PACKAGE LOCK FILES (Optional)
+# ===============================
+# Keep package-lock.json normally
+# Uncomment below only if needed
+# package-lock.json
+# yarn.lock
+
+# ===============================
+# DEPLOYMENT
+# ===============================
+.vercel/
+.render/

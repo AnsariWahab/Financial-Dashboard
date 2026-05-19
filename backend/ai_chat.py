@@ -1,173 +1,153 @@
 """
-RAG-based AI Chat Service using Groq AI
-Uses Retrieval-Augmented Generation for intelligent responses
-
-How RAG Works:
-1. INDEXING: Financial data is converted to embeddings and stored in vector DB
-2. RETRIEVAL: When user asks question, semantically similar data is retrieved
-3. GENERATION: Only relevant data is sent to Groq AI for response generation
-
-Memory: Each request now accepts a `history` list of prior turns so the
-model can reference earlier parts of the conversation.
+Multi-Agent AI Chat — LangGraph + Groq
+Uses create_react_agent from langgraph.prebuilt (correct for LangChain 1.3+)
+Tools use StructuredTool + Pydantic for clean Groq-compatible schema
 """
-
-from groq import Groq
-from rag_system import rag
 import os
 from dotenv import load_dotenv
 
+from langchain_groq import ChatGroq
+from langchain_core.tools import StructuredTool
+from langchain_core.messages import HumanMessage, AIMessage
+from langgraph.prebuilt import create_react_agent
+from pydantic import BaseModel, Field
+
+from agents.sql_tool import run_sql_tool
+from agents.calculator_tool import run_calculator_tool
+from agents.explainer_tool import run_explainer_tool
+
 load_dotenv()
 
-# Maximum number of prior turns (user + assistant pairs) to keep in context.
-# Older turns are dropped to avoid exceeding the model's token limit.
-MAX_HISTORY_TURNS = 10
+MAX_HISTORY_TURNS = 6
 
+# ── System prompt ─────────────────────────────────────────────────────────────
+
+SYSTEM_PROMPT = """You are a professional financial analyst AI assistant for OMOTEC,
+an educational technology company based in India.
+
+You have three tools:
+- SQL_Database: Use FIRST for any question involving numbers, revenue, expenses, students, counts
+- PnL_Calculator: Use for margin percentages, EBITDA %, PAT %, Gross Profit % calculations
+- Financial_Explainer: Use for conceptual questions (what is EBITDA?) or as fallback
+
+RULES:
+1. Always try SQL_Database first for any numerical question
+2. SQL queries already return values converted to Lakhs or Crores — do NOT convert again
+3. If SQL returns 'revenue_lakhs: 1555.36' then the answer is ₹1,555.36 Lakhs — report directly
+4. Use ₹ symbol for all monetary values and always state the unit (Lakhs or Crores)
+5. Always mention which year and segment your answer refers to
+6. source_year in the DB uses underscores: FY25_26 not FY25-26
+7. Be concise, professional, and well formatted
+8. If one tool returns no results, try another tool
+9. Never make up numbers — only use what the tools return
+"""
+
+# ── Pydantic input schemas (required for Groq tool calling) ──────────────────
+
+class SQLInput(BaseModel):
+    question: str = Field(description="Clear financial question to query from the database")
+
+class CalcInput(BaseModel):
+    question: str = Field(description="Financial question or JSON filters for P&L calculation")
+
+class ExplainInput(BaseModel):
+    question: str = Field(description="Conceptual financial question to explain")
+
+# ── Tool definitions ──────────────────────────────────────────────────────────
+
+TOOLS = [
+    StructuredTool(
+        name="SQL_Database",
+        func=run_sql_tool,
+        args_schema=SQLInput,
+        description=(
+            "Query MySQL database for exact financial numbers. "
+            "Use FIRST for any numerical question: revenue, expenses, "
+            "students, schools, branches, monthly data, comparisons. "
+            "Input: a clear question about financial data. "
+            "Examples: 'Total revenue for centre in FY25_26 in Lakhs', "
+            "'Monthly revenue for school segment FY24_25', "
+            "'Which branch has highest revenue in FY25_26', "
+            "'Total expense for school segment FY25_26 in Lakhs'"
+        )
+    ),
+    StructuredTool(
+        name="PnL_Calculator",
+        func=run_calculator_tool,
+        args_schema=CalcInput,
+        description=(
+            "Calculate P&L metrics: Gross Profit %, EBITDA %, PAT %, margins. "
+            "Use when user asks about profit margins, EBITDA, PAT, "
+            "or wants a full P&L breakdown for a segment or year. "
+            "Input: plain text like 'P&L for centre FY25-26 in Lakhs' "
+            "or JSON: '{\"source_year\": \"FY25-26\", \"segment\": \"centre\", \"unit\": \"Lakhs\"}'"
+        )
+    ),
+    StructuredTool(
+        name="Financial_Explainer",
+        func=run_explainer_tool,
+        args_schema=ExplainInput,
+        description=(
+            "Answer conceptual financial questions using the knowledge base. "
+            "Use for: 'What is EBITDA?', 'Why is gross margin negative?', "
+            "'Explain PAT margin', 'What does indirect expense include?'. "
+            "Also use as FALLBACK if SQL_Database or PnL_Calculator return no results."
+        )
+    ),
+]
+
+
+# ── Main chat class ───────────────────────────────────────────────────────────
 
 class FinancialAIChat:
     def __init__(self):
         self.api_key = os.getenv("GROQ_API_KEY")
 
         if not self.api_key or self.api_key == "your_groq_api_key_here":
-            print("⚠️ Warning: GROQ_API_KEY not set in .env file")
-            self.client = None
+            print("⚠️  Warning: GROQ_API_KEY not set in .env file")
+            self.agent = None
         else:
-            self.client = Groq(api_key=self.api_key)
+            llm = ChatGroq(
+                model="llama-3.3-70b-versatile",
+                temperature=0.1,
+                api_key=self.api_key,
+                max_tokens=800,
+            )
 
-        print("✅ RAG-based AI Chat initialized")
+            self.agent = create_react_agent(
+                model=llm,
+                tools=TOOLS,
+                prompt=SYSTEM_PROMPT,
+            )
 
-    def retrieve_context(self, user_query: str, n_results: int = 3):
+        print("✅ Multi-Agent AI Chat initialized (LangGraph)")
+
+    def _build_messages(self, user_message: str, history: list[dict]) -> list:
+        """Convert history dicts to LangChain message objects."""
+        messages = []
+        recent = history[-(MAX_HISTORY_TURNS * 2):]
+        for msg in recent:
+            if msg["role"] == "user":
+                messages.append(HumanMessage(content=msg["content"]))
+            elif msg["role"] == "assistant":
+                messages.append(AIMessage(content=msg["content"]))
+        messages.append(HumanMessage(content=user_message))
+        return messages
+
+    def chat(
+        self,
+        user_message: str,
+        history: list[dict] | None = None,
+        filters: dict | None = None
+    ) -> dict:
         """
-        Retrieve relevant documents using semantic search
-        and generate context from them.
+        Main entry point — called by app.py.
+        API contract unchanged — frontend needs zero changes.
         """
-        try:
-            retrieved_docs = rag.retrieve(user_query, n_results=n_results)
-
-            if not retrieved_docs:
-                return [], "No relevant financial data found."
-
-            context = rag.generate_context(retrieved_docs)
-            return retrieved_docs, context
-
-        except Exception as e:
-            print(f"❌ Error in RAG retrieval: {e}")
-            return [], "Unable to retrieve financial data at this moment."
-
-    def build_system_prompt(self, financial_context: str) -> str:
-        """
-        Build the system prompt, injecting the RAG context for this turn.
-        The system prompt is always regenerated fresh per turn so the
-        retrieved context is always relevant to the latest question.
-        """
-        return f"""
-You are a professional financial analyst AI assistant for OMOTEC,
-an educational technology company.
-
-You have access to company financial data through a RAG
-(Retrieval-Augmented Generation) system.
-
-The following financial information was retrieved as the most relevant
-context for the user's LATEST question:
-
-================ FINANCIAL CONTEXT ================
-
-{financial_context}
-
-===================================================
-
-IMPORTANT RULES:
-
-1. Answer ONLY using the retrieved financial data above
-2. Do NOT make up numbers or assumptions
-3. If information is unavailable, clearly say:
-   "No relevant data was found for this query."
-4. Do NOT assume missing values are zero unless explicitly shown
-5. Use exact financial figures from the retrieved context
-6. Use ₹ symbol for monetary values
-7. Mention "Lakhs INR" where applicable
-8. Show percentages with ONE decimal place
-9. Avoid repeatedly saying:
-   - "According to Document X"
-   - "Based on Document X"
-10. Mention source documents ONLY if necessary
-11. Keep responses:
-   - professional
-   - concise
-   - well formatted
-12. Prefer bullet points and structured formatting
-13. For calculations, show step-by-step breakdown
-14. Always provide a direct final answer
-
-MEMORY RULES:
-- You have access to the full conversation history below.
-- Use earlier turns to resolve follow-up questions like
-  "what about last year?" or "compare that to Research segment".
-- Never repeat information the user already acknowledged.
-
-RESPONSE FORMAT:
-
-Answer:
-<direct answer>
-
-Breakdown:
-- Item 1
-- Item 2
-
-Calculation:
-<step-by-step calculation if applicable>
-
-Conclusion:
-<final concise result>
-"""
-
-    def _trim_history(self, history: list[dict]) -> list[dict]:
-        """
-        Keep only the most recent MAX_HISTORY_TURNS pairs so we don't
-        blow past the model's context window.
-
-        Each pair = one user message + one assistant message = 2 entries.
-        """
-        max_messages = MAX_HISTORY_TURNS * 2
-        if len(history) > max_messages:
-            # Always drop from the front (oldest messages)
-            history = history[-max_messages:]
-        return history
-
-    def chat(self, user_message: str, history: list[dict] | None = None, filters=None) -> dict:
-        """
-        RAG-BASED CHAT WITH MEMORY
-
-        Flow:
-        1. Accept conversation history from the client
-        2. Retrieve relevant RAG context for the latest question
-        3. Build system prompt with that context
-        4. Send [system] + trimmed history + [new user message] to Groq
-        5. Return response + updated history for the client to store
-
-        Args:
-            user_message: The latest question from the user.
-            history:      List of {"role": "user"|"assistant", "content": str}
-                          representing prior turns. The client owns this state
-                          and sends it back on every request.
-            filters:      Optional dashboard filter dict (unused by Groq but
-                          available for future tool-call integration).
-
-        Returns:
-            dict with keys:
-              error              – bool
-              message            – str  (the assistant's reply)
-              history            – list (updated history to store client-side)
-              rag_enabled        – bool
-              documents_retrieved– int
-              relevance_scores   – list[float]
-        """
-        if not self.client:
+        if not self.agent:
             return {
                 "error": True,
-                "message": (
-                    "❌ Groq AI is not configured. "
-                    "Please set GROQ_API_KEY in backend/.env file."
-                ),
+                "message": "❌ Groq AI not configured. Set GROQ_API_KEY in backend/.env",
                 "history": history or [],
             }
 
@@ -175,66 +155,68 @@ Conclusion:
             history = []
 
         try:
-            # ── STEP 1: RAG retrieval for the latest question ──────────────
-            retrieved_docs, financial_context = self.retrieve_context(
-                user_message, n_results=3
+            # Enrich question with dashboard filter context
+            enriched_question = user_message
+            if filters:
+                year    = filters.get("source_year") or filters.get("year")
+                segment = filters.get("segment")
+                unit    = filters.get("unit", "Lakhs")
+                parts   = []
+                if year    and year    != "All": parts.append(f"year={year}")
+                if segment and segment != "All": parts.append(f"segment={segment}")
+                if unit:                         parts.append(f"unit={unit}")
+                if parts:
+                    enriched_question = (
+                        f"{user_message} "
+                        f"[Dashboard context: {', '.join(parts)}]"
+                    )
+
+            # Build message list with history
+            messages = self._build_messages(enriched_question, history)
+
+            # Invoke the LangGraph agent
+            result = self.agent.invoke(
+                {"messages": messages},
+                config={"recursion_limit": 8}
             )
 
-            # ── STEP 2: Build system prompt with fresh RAG context ─────────
-            system_prompt = self.build_system_prompt(financial_context)
+            # Extract final answer from last AI message
+            assistant_reply = ""
+            for msg in reversed(result["messages"]):
+                if isinstance(msg, AIMessage) and msg.content:
+                    assistant_reply = msg.content
+                    break
 
-            # ── STEP 3: Trim history to avoid token overflow ───────────────
-            trimmed_history = self._trim_history(list(history))
+            if not assistant_reply:
+                assistant_reply = (
+                    "I could not generate a response. "
+                    "Please try rephrasing your question."
+                )
 
-            # ── STEP 4: Assemble messages for Groq ────────────────────────
-            #
-            # Structure:
-            #   [system prompt]          ← RAG context + rules (not in history)
-            #   [prior turn 1 user]      ← from history
-            #   [prior turn 1 assistant] ← from history
-            #   ...
-            #   [current user message]   ← the new question
-            #
-            messages_for_groq = (
-                [{"role": "system", "content": system_prompt}]
-                + trimmed_history
-                + [{"role": "user", "content": user_message}]
-            )
-
-            # ── STEP 5: Call Groq ──────────────────────────────────────────
-            chat_completion = self.client.chat.completions.create(
-                messages=messages_for_groq,
-                model="llama-3.3-70b-versatile",
-                temperature=0.2,
-                max_tokens=1000,
-            )
-
-            assistant_reply = chat_completion.choices[0].message.content
-
-            # ── STEP 6: Append this turn to history and return ─────────────
-            updated_history = trimmed_history + [
+            # Update and trim history
+            updated_history = list(history) + [
                 {"role": "user",      "content": user_message},
                 {"role": "assistant", "content": assistant_reply},
             ]
+            max_msgs = MAX_HISTORY_TURNS * 2
+            if len(updated_history) > max_msgs:
+                updated_history = updated_history[-max_msgs:]
 
             return {
                 "error": False,
                 "message": assistant_reply,
-                "history": updated_history,        # ← client stores this
+                "history": updated_history,
                 "rag_enabled": True,
-                "documents_retrieved": len(retrieved_docs),
-                "relevance_scores": [
-                    round(doc.get("relevance_score", 0), 4)
-                    for doc in retrieved_docs
-                ],
+                "documents_retrieved": 0,
+                "relevance_scores": [],
             }
 
         except Exception as e:
-            print(f"❌ Error in AI chat: {e}")
+            print(f"❌ Agent error: {e}")
             return {
                 "error": True,
                 "message": f"Sorry, I encountered an error: {str(e)}",
-                "history": history,   # return unchanged history on error
+                "history": history,
             }
 
 
