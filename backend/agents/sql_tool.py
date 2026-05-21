@@ -57,6 +57,10 @@ IMPORTANT RULES FOR QUERY GENERATION:
 12. ALWAYS alias your result columns clearly:
     e.g. AS revenue_lakhs, AS total_expense_lakhs, AS gross_profit_lakhs
     This helps the agent understand what the number represents.
+13. When the question is short or ambiguous (e.g. 'What about centre?', 'Compare both'),
+    default to querying Revenue for pnl_categories unless context says otherwise.
+    Always include source_year filter if a year was mentioned anywhere in the conversation.
+    Never assume a branch filter unless a branch name is explicitly mentioned.    
 """
 
 SYSTEM_PROMPT = f"""You are a MySQL expert for a financial dashboard.
@@ -90,6 +94,7 @@ _sql_llm = ChatGroq(
     temperature=0,
     api_key=os.getenv("GROQ_API_KEY")
 )
+print(f"🔍 SQL model: llama-3.1-8b-instant")
 
 
 def run_sql_tool(question: str) -> str:

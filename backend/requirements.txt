@@ -1,30 +1,41 @@
-# Web Framework
+# ── Web Framework ──────────────────────────────────────────────
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 
-# Database
+# ── Database ───────────────────────────────────────────────────
 mysql-connector-python==8.2.0
 
-# Config & Validation
+# ── Config & Validation ────────────────────────────────────────
 python-dotenv==1.0.0
 pydantic==2.5.0
 
-# Data processing
+# ── Data Processing ────────────────────────────────────────────
 pandas==2.1.3
+numpy==1.26.2
 
-# AI - Groq (lightweight API client, no heavy deps)
-httpx==0.27.0
-groq==0.9.0
+# ── AI — Groq API Client ───────────────────────────────────────
+groq==0.37.1
 
-# RAG - Vector DB with built-in ONNX embedder (~50MB, no PyTorch)
-# This is all you need when EMBEDDING_BACKEND=onnx (the default)
+# ── LangChain + LangGraph (Multi-Agent System) ────────────────
+# Core framework
+langchain==1.3.1
+langchain-core>=0.3.0
+langchain-groq==1.1.2
+
+# LangGraph — agent orchestration (replaces AgentExecutor)
+langgraph>=0.2.0
+
+# ── RAG — Vector DB with built-in ONNX embedder (~50MB) ───────
+# Works out of the box with EMBEDDING_BACKEND=onnx (default)
 chromadb --prefer-binary
 
-# ─────────────────────────────────────────────────────────────────
-# OPTIONAL: Only uncomment if you set EMBEDDING_BACKEND=sentence_transformers
-# WARNING: This pulls in PyTorch (~700MB) and causes Windows path-length
-# errors unless you enable long paths in Windows registry first.
-# ─────────────────────────────────────────────────────────────────
+# ── HTTP ───────────────────────────────────────────────────────
+httpx==0.27.0
+
+# ─────────────────────────────────────────────────────────────
+# OPTIONAL: Only uncomment if EMBEDDING_BACKEND=sentence_transformers
+# WARNING: Pulls PyTorch (~700MB). Enable Windows long paths first.
+# ─────────────────────────────────────────────────────────────
 # sentence-transformers==2.3.1
 
 #pip install chromadb --prefer-binary

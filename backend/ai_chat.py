@@ -22,24 +22,40 @@ MAX_HISTORY_TURNS = 6
 
 # ── System prompt ─────────────────────────────────────────────────────────────
 
-SYSTEM_PROMPT = """You are a professional financial analyst AI assistant for OMOTEC,
-an educational technology company based in India.
+SYSTEM_PROMPT = """You are a professional financial analyst AI assistant for a financial dashboard.
 
 You have three tools:
-- SQL_Database: Use FIRST for any question involving numbers, revenue, expenses, students, counts
-- PnL_Calculator: Use for margin percentages, EBITDA %, PAT %, Gross Profit % calculations
-- Financial_Explainer: Use for conceptual questions (what is EBITDA?) or as fallback
+- SQL_Database: For single specific metrics only — total revenue, expense totals, student counts, branch comparisons, monthly data
+- PnL_Calculator: For ANY full P&L request or margin calculations — gross profit %, EBITDA %, PAT %, full breakdown
+- Financial_Explainer: For conceptual questions (what is EBITDA?) or as last fallback
 
-RULES:
-1. Always try SQL_Database first for any numerical question
-2. SQL queries already return values converted to Lakhs or Crores — do NOT convert again
-3. If SQL returns 'revenue_lakhs: 1555.36' then the answer is ₹1,555.36 Lakhs — report directly
-4. Use ₹ symbol for all monetary values and always state the unit (Lakhs or Crores)
-5. Always mention which year and segment your answer refers to
-6. source_year in the DB uses underscores: FY25_26 not FY25-26
-7. Be concise, professional, and well formatted
-8. If one tool returns no results, try another tool
-9. Never make up numbers — only use what the tools return
+ROUTING RULES — follow exactly in order:
+1. User asks for 'P&L breakdown', 'full P&L', 'gross profit %', 'EBITDA', 'EBITDA %', 'PAT', 'PAT %', 'margins' → PnL_Calculator FIRST, skip SQL entirely
+2. User asks for a single number like 'total revenue', 'how many students', 'which branch has most revenue' → SQL_Database
+3. User asks 'what is X' or 'explain X' or asks a conceptual question → Financial_Explainer
+4. If a tool returns no results → try Financial_Explainer as fallback
+
+CRITICAL RULES:
+- PnL_Calculator input MUST be ONE combined string: 'Full P&L for centre segment FY25-26 in Lakhs'
+  NEVER pass separate keys like source_year, segment, unit — it will fail with an error
+- SQL results are already converted to Lakhs or Crores — do NOT convert again
+- Use ₹ symbol for all monetary values, always state the unit (Lakhs or Crores)
+- Always mention which year and segment your answer refers to
+- source_year in DB uses underscores: FY25_26 not FY25-26
+- Never make up numbers — only use what tools return
+- For short follow-up questions, use the same year and unit as the previous question
+- Never add filters not explicitly mentioned in the question
+- When comparing segments, query each one separately
+- For conceptual questions (what is X, explain X, why does X matter),
+  call Financial_Explainer immediately with just the concept name.
+  Do not call SQL_Database first. Do not think too long.
+  Example input to Financial_Explainer: 'EBITDA definition and importance'
+- Never repeat information already given in the conversation history
+- Each answer should only address the current question, not re-explain previous answers
+- If the previous answer already explained a concept, do not explain it again
+- You MUST always call at least one tool before giving a Final Answer
+- For 'what is X' questions, ALWAYS call Financial_Explainer — never answer from memory
+- Never say 'I don't have information' without first trying Financial_Explainer  
 """
 
 # ── Pydantic input schemas (required for Groq tool calling) ──────────────────
@@ -48,7 +64,13 @@ class SQLInput(BaseModel):
     question: str = Field(description="Clear financial question to query from the database")
 
 class CalcInput(BaseModel):
-    question: str = Field(description="Financial question or JSON filters for P&L calculation")
+    question: str = Field(
+        description=(
+            "Financial question or filter string for P&L calculation. "
+            "Pass as plain text like: 'P&L for centre segment FY25-26 in Lakhs' "
+            "Do NOT pass as separate JSON keys — combine into one string."
+        )
+    )
 
 class ExplainInput(BaseModel):
     question: str = Field(description="Conceptual financial question to explain")
@@ -76,11 +98,14 @@ TOOLS = [
         func=run_calculator_tool,
         args_schema=CalcInput,
         description=(
-            "Calculate P&L metrics: Gross Profit %, EBITDA %, PAT %, margins. "
-            "Use when user asks about profit margins, EBITDA, PAT, "
-            "or wants a full P&L breakdown for a segment or year. "
-            "Input: plain text like 'P&L for centre FY25-26 in Lakhs' "
-            "or JSON: '{\"source_year\": \"FY25-26\", \"segment\": \"centre\", \"unit\": \"Lakhs\"}'"
+            "Calculate P&L metrics: Gross Profit %, EBITDA %, PAT %, full P&L breakdown. "
+            "Use when user asks for margins, EBITDA, PAT, or full P&L for a segment/year. "
+            "IMPORTANT: Pass everything as ONE question string. "
+            "Examples: "
+            "'Full P&L for centre segment FY25-26 in Lakhs', "
+            "'EBITDA margin for school FY25-26', "
+            "'PAT % for research segment FY24-25'. "
+            "Never pass source_year/segment/unit as separate parameters."
         )
     ),
     StructuredTool(
@@ -108,11 +133,12 @@ class FinancialAIChat:
             self.agent = None
         else:
             llm = ChatGroq(
-                model="llama-3.3-70b-versatile",
+                model="llama-3.3-70b-versatile",  # more powerful model for orchestration
                 temperature=0.1,
                 api_key=self.api_key,
                 max_tokens=800,
             )
+            print(f"🤖 Orchestrator model: llama-3.3-70b-versatile")
 
             self.agent = create_react_agent(
                 model=llm,
@@ -177,7 +203,7 @@ class FinancialAIChat:
             # Invoke the LangGraph agent
             result = self.agent.invoke(
                 {"messages": messages},
-                config={"recursion_limit": 8}
+                config={"recursion_limit": 20}
             )
 
             # Extract final answer from last AI message
