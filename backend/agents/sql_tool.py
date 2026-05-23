@@ -13,7 +13,7 @@ load_dotenv()
 
 # ── Schema the LLM needs to know about ──────────────────────────────────────
 DB_SCHEMA = """
-TABLE: omotec_financials
+TABLE: financials
 COLUMNS:
   source_year     VARCHAR  — values: FY22_23, FY23_24, FY24_25, FY25_26  (underscores NOT hyphens)
   month           DATE     — last day of each month e.g. 2025-04-30

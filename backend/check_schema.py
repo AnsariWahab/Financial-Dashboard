@@ -26,7 +26,7 @@ def check_schema():
     if not tables:
         print("   ⚠️  No tables found in database!")
         print("\n   Your database is empty. You need to:")
-        print("   - Create a table (e.g., 'omotec_financials')")
+        print("   - Create a table (e.g., 'financials')")
         print("   - Import your data")
         return
     
@@ -35,7 +35,7 @@ def check_schema():
         print(f"      - {table[0]}")
     
     # Check the main table (adjust table name if different)
-    table_name = 'omotec_financials'
+    table_name = 'financials'
     
     print(f"\n2️⃣ Checking '{table_name}' table structure...")
     try:
@@ -123,7 +123,7 @@ def suggest_schema():
     """Suggest CREATE TABLE statement if table doesn't exist"""
     print("\n📝 Suggested table structure:")
     print("""
-CREATE TABLE omotec_financials (
+CREATE TABLE financials (
     id INT AUTO_INCREMENT PRIMARY KEY,
     source_year VARCHAR(20),
     month VARCHAR(20),

@@ -76,7 +76,7 @@ Used to populate filter dropdowns in the frontend. Returns all unique values in 
 All P&L (Profit & Loss) metric calculations live here. Takes a pandas DataFrame of raw transaction rows and computes aggregated financial metrics. This is the business logic layer.
 
 ### How the Data is Structured
-Each row in `omotec_financials` represents one financial entry with:
+Each row in `financials` represents one financial entry with:
 - `pnl_categories` — what type of entry (e.g. `'Revenue'`, `'Direct Expense'`, `'Tax'`)
 - `value` — the amount in rupees
 - `segment`, `branch`, `month`, `source_year` — dimensions for filtering
@@ -223,7 +223,7 @@ chromadb         → Local vector database for RAG
 ## `create_tables.py` & `insert_sample_data.py`
 
 Run once during initial setup:
-- `create_tables.py` — creates the `omotec_financials` table schema in MySQL
+- `create_tables.py` — creates the `financials` table schema in MySQL
 - `insert_sample_data.py` — inserts sample rows so the dashboard has data to display before real data is loaded
 
 After real data is in MySQL, these files are no longer needed for daily use.

@@ -532,7 +532,7 @@ def chat_with_ai(request: ChatRequest):
 def reindex_rag():
     """Force re-index the RAG system and clear cache (call after data updates)."""
     try:
-        rag.index_omotec_financials(force_reindex=True)
+        rag.index_financials(force_reindex=True)
         cache_clear()
         return {"success": True, "message": "RAG reindexed and cache cleared"}
     except Exception as e:

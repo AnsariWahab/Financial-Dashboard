@@ -34,14 +34,14 @@ Financial-Dashboard/
 | Charts    | Recharts (ComposedChart everywhere) |
 | Icons     | Lucide React                        |
 | Backend   | FastAPI (Python)                    |
-| Database  | MySQL — table: `omotec_financials`  |
+| Database  | MySQL — table: `financials`  |
 | AI Chat   | RAG with ONNX embedder              |
 
 ---
 
 ## Database
 
-**Table:** `omotec_financials`
+**Table:** `financials`
 
 **Columns:**
 
@@ -61,7 +61,7 @@ research_category VARCHAR   — Research Paper | Research Competition
   → Fixed in `database.py`: `source_year = source_year.replace('-', '_')` at top of `get_financials()`
 - `month` column is `datetime.date` object, NOT a string — must use `pd.to_datetime()` before `.dt.strftime()`
 - One stray row: `month = 2024-03-31` tagged as `FY24_25` — should be `FY23_24`
-  → Fix: `UPDATE omotec_financials SET source_year='FY23_24' WHERE month='2024-03-31' AND source_year='FY24_25'`
+  → Fix: `UPDATE financials SET source_year='FY23_24' WHERE month='2024-03-31' AND source_year='FY24_25'`
 - `segment = ''` and `branch = ''` empty string rows exist — filtered out in all endpoints
 - `branch = 'ALL'` rows exist — excluded from branch-level calculations to avoid double counting
 
@@ -273,14 +273,14 @@ Financial-Dashboard/
 | Charts    | Recharts (ComposedChart everywhere) |
 | Icons     | Lucide React                        |
 | Backend   | FastAPI (Python)                    |
-| Database  | MySQL — table: `omotec_financials`  |
+| Database  | MySQL — table: `financials`  |
 | AI Chat   | RAG with ONNX embedder              |
 
 ---
 
 ## Database
 
-**Table:** `omotec_financials`
+**Table:** `financials`
 
 **Columns:**
 
@@ -300,7 +300,7 @@ research_category VARCHAR   — Research Paper | Research Competition
   → Fixed in `database.py`: `source_year = source_year.replace('-', '_')` at top of `get_financials()`
 - `month` column is `datetime.date` object, NOT a string — must use `pd.to_datetime()` before `.dt.strftime()`
 - One stray row: `month = 2024-03-31` tagged as `FY24_25` — should be `FY23_24`
-  → Fix: `UPDATE omotec_financials SET source_year='FY23_24' WHERE month='2024-03-31' AND source_year='FY24_25'`
+  → Fix: `UPDATE financials SET source_year='FY23_24' WHERE month='2024-03-31' AND source_year='FY24_25'`
 - `segment = ''` and `branch = ''` empty string rows exist — filtered out in all endpoints
 - `branch = 'ALL'` rows exist — excluded from branch-level calculations to avoid double counting
 

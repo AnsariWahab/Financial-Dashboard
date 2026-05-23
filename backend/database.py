@@ -107,7 +107,7 @@ def get_financials(source_year=None, month=None, segment=None, branch=None):
             Student_name,
             school_type,
             research_category
-        FROM omotec_financials
+        FROM financials
         WHERE 1=1
         """
 
@@ -151,7 +151,7 @@ def get_distinct_values(column_name):
     if connection is None:
         return []
     try:
-        query = f"SELECT DISTINCT {column_name} FROM omotec_financials WHERE {column_name} IS NOT NULL ORDER BY {column_name}"
+        query = f"SELECT DISTINCT {column_name} FROM financials WHERE {column_name} IS NOT NULL ORDER BY {column_name}"
         cursor = connection.cursor()
         cursor.execute(query)
         values = [row[0] for row in cursor.fetchall()]

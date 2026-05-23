@@ -23,7 +23,7 @@ With RAG:     question → search → top 5 relevant summaries + question → LL
 
 ### Phase 1: INDEXING (runs once at startup)
 
-**File:** `rag_system.py → index_omotec_financials()`
+**File:** `rag_system.py → index_financials()`
 
 Converts raw financial data into searchable vector embeddings stored in ChromaDB.
 
@@ -155,16 +155,16 @@ self.client = chromadb.PersistentClient(path="./chroma_db")
 Creates or opens the ChromaDB database on disk at `backend/chroma_db/`. Persistent means data survives server restarts — no re-indexing needed unless you change the data.
 
 ```python
-self.collection = self.client.get_collection("omotec_financials", ...)
+self.collection = self.client.get_collection("financials", ...)
 # OR if not found:
-self.collection = self.client.create_collection("omotec_financials", ...)
+self.collection = self.client.create_collection("financials", ...)
 ```
 A ChromaDB **collection** is like a table — a named container for vectors. One collection holds all OMOTEC financial chunks.
 
 ### `build_embedding_function()`
 Returns the embedding model based on `EMBEDDING_BACKEND` env var. Called once in `__init__` and used for both indexing and querying (must be the same model both ways — otherwise the vector spaces don't match).
 
-### `index_omotec_financials(force_reindex=False)`
+### `index_financials(force_reindex=False)`
 ```python
 if self.collection.count() > 0 and not force_reindex:
     print(f"📚 RAG already indexed with {self.collection.count()} documents")
@@ -258,7 +258,7 @@ Created once when `app.py` imports `ai_chat`. The Groq client and RAG system are
 
 | Term | Meaning |
 |------|---------|
-| **Collection** | A named group of vectors (like a DB table). Here: `omotec_financials` |
+| **Collection** | A named group of vectors (like a DB table). Here: `financials` |
 | **Document** | The raw text chunk stored alongside its vector |
 | **Embedding** | The numeric vector (~384 floats) representing a document's meaning |
 | **Metadata** | Extra fields stored with each doc: `type`, `year`, `segment` |

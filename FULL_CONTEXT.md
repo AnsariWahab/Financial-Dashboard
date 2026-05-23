@@ -47,7 +47,7 @@
 | Frontend | React 19 + TypeScript + Vite + Tailwind CSS |
 | Charts | Recharts (ComposedChart — Bar + Line + dual Y-axis) |
 | Backend | Python FastAPI |
-| Database | MySQL — table: `omotec_financials`, DB: `omotec_dashboard` |
+| Database | MySQL — table: `financials`, DB: `omotec_dashboard` |
 | AI Agents | LangGraph + LangChain 1.3 + Groq API |
 | LLM (Orchestrator) | llama-3.3-70b-versatile |
 | LLM (SQL Agent) | llama-3.1-8b-instant |
@@ -131,8 +131,8 @@ src/services/
 - [ ] `Financial_Explainer` sometimes fails alone — needs 70B model to route correctly
 - [ ] `CORS allow_origins = ["*"]` — restrict in production
 - [ ] `mockData.ts` in `src/data/` — unused, kept for reference
-- [ ] March FY24_25 duplicate row in DB — run: `UPDATE omotec_financials SET source_year='FY23_24' WHERE month='2024-03-31' AND source_year='FY24_25'`
-- [ ] Anonymise DB (rename from omotec_financials to demo_financials) for portfolio use
+- [ ] March FY24_25 duplicate row in DB — run: `UPDATE financials SET source_year='FY23_24' WHERE month='2024-03-31' AND source_year='FY24_25'`
+- [ ] Anonymise DB (rename from financials to demo_financials) for portfolio use
 
 ### Running the Project
 ```bash

@@ -31,19 +31,19 @@ class FinancialRAG:
 
         try:
             self.collection = self.client.get_collection(
-                name="omotec_financials",
+                name="financials",
                 embedding_function=self.embedding_function
             )
             print("✅ Loaded existing RAG collection")
         except Exception:
             self.collection = self.client.create_collection(
-                name="omotec_financials",
+                name="financials",
                 embedding_function=self.embedding_function,
                 metadata={"description": "OMOTEC Financial Data"}
             )
             print("✅ Created new RAG collection")
 
-    def index_omotec_financials(self, force_reindex=False):
+    def index_financials(self, force_reindex=False):
         if self.collection.count() > 0 and not force_reindex:
             print(f"📚 RAG already indexed with {self.collection.count()} documents")
             return
@@ -220,9 +220,9 @@ class FinancialRAG:
 
     def reindex_if_needed(self):
         if self.collection.count() == 0:
-            self.index_omotec_financials(force_reindex=True)
+            self.index_financials(force_reindex=True)
 
 
 # Global singleton
 rag = FinancialRAG()
-rag.index_omotec_financials()
+rag.index_financials()

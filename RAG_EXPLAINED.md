@@ -26,7 +26,7 @@ With RAG:     User question → Search → Top 3 relevant chunks + question → 
 
 This converts your raw data into a form that can be searched by *meaning*, not just keywords.
 
-**What happens in `rag_system.py → index_omotec_financials()`:**
+**What happens in `rag_system.py → index_financials()`:**
 
 1. Fetch all financial data from MySQL via `get_financials()`
 2. Create **text chunks** — human-readable summaries like:
@@ -185,7 +185,7 @@ As your database grows (more years, more branches), RAG stays fast — only the 
 
 ## Key ChromaDB Concepts
 
-**Collection** — a named group of vectors (like a table). Here: `omotec_financials`.
+**Collection** — a named group of vectors (like a table). Here: `financials`.
 
 **Document** — the raw text chunk stored alongside its vector.
 
@@ -211,7 +211,7 @@ As your database grows (more years, more branches), RAG stays fast — only the 
 
 ## How to Extend the RAG System
 
-**Add new chunk types** — in `index_omotec_financials()`, add more `documents.append(...)` calls for e.g. branch-wise summaries, quarterly rollups.
+**Add new chunk types** — in `index_financials()`, add more `documents.append(...)` calls for e.g. branch-wise summaries, quarterly rollups.
 
 **Force reindex after data updates** — call the endpoint:
 ```
