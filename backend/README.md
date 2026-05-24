@@ -49,7 +49,7 @@ The API connects to your MySQL database using these credentials (in `.env`):
 Host: 127.0.0.1
 User: root
 Password: Sasuke_1234
-Database: omotec_dashboard
+Database: dashboard
 Port: 3306
 ```
 
@@ -117,7 +117,7 @@ python database.py
 ### View Tables
 ```bash
 mysql -u root -p
-USE omotec_dashboard;
+USE dashboard;
 SHOW TABLES;
 ```
 

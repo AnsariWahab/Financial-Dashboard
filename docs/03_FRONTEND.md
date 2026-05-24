@@ -236,7 +236,7 @@ Shows the full waterfall: Revenue → Direct Expense → Gross Profit → Indire
 ### State
 ```tsx
 const [messages, setMessages] = useState<ChatMessage[]>([
-  { role: 'assistant', content: '👋 Hello! I am your OMOTEC financial AI assistant...' }
+  { role: 'assistant', content: '👋 Hello! I am your The financial AI assistant...' }
 ]);
 const [input, setInput] = useState('');
 const [isLoading, setIsLoading] = useState(false);

@@ -187,7 +187,7 @@ export const ImpactMetrics = () => {
         <LargeMetricCard
           title="Unique Schools"
           value={data.uniqueSchools.toLocaleString()}
-          subtitle="Schools partnered with OMOTEC"
+          subtitle="Schools partnered with Demo Company"
           icon={<School className="w-12 h-12" />}
           gradient="from-purple-500 to-purple-600"
         />
@@ -322,7 +322,7 @@ export const ImpactMetrics = () => {
 
       {/* ── Overall Impact Banner ── */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 rounded-lg text-white">
-        <h3 className="text-2xl font-bold mb-4">OMOTEC's Total Impact</h3>
+        <h3 className="text-2xl font-bold mb-4">Demo Company's Total Impact</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="text-center">
             <p className="text-4xl font-bold mb-1">{data.uniqueStudents.toLocaleString()}</p>

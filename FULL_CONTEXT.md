@@ -47,7 +47,7 @@
 | Frontend | React 19 + TypeScript + Vite + Tailwind CSS |
 | Charts | Recharts (ComposedChart — Bar + Line + dual Y-axis) |
 | Backend | Python FastAPI |
-| Database | MySQL — table: `financials`, DB: `omotec_dashboard` |
+| Database | MySQL — table: `financials`, DB: `dashboard` |
 | AI Agents | LangGraph + LangChain 1.3 + Groq API |
 | LLM (Orchestrator) | llama-3.3-70b-versatile |
 | LLM (SQL Agent) | llama-3.1-8b-instant |

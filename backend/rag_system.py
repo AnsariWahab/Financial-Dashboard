@@ -39,7 +39,7 @@ class FinancialRAG:
             self.collection = self.client.create_collection(
                 name="financials",
                 embedding_function=self.embedding_function,
-                metadata={"description": "OMOTEC Financial Data"}
+                metadata={"description": "Financial Data"}
             )
             print("✅ Created new RAG collection")
 
@@ -69,7 +69,7 @@ class FinancialRAG:
                 f"PAT: ₹{m['PAT']:.2f} Lakhs ({m['PAT %']:.1f}% margin)\n"
                 f"Direct Expense: ₹{m['Direct Expense']:.2f} Lakhs\n"
                 f"Indirect Expense: ₹{m['Indirect Expense']:.2f} Lakhs\n"
-                f"This is OMOTEC's total financial performance across all years and segments."
+                f"This is the total financial performance across all years and segments."
             )
             metadatas.append({"type": "overall_summary", "segment": "all", "year": "all", "indexed_at": datetime.now().isoformat()})
             ids.append("overall_summary")
@@ -99,7 +99,7 @@ class FinancialRAG:
                             f"PAT (Net Profit): ₹{ym['PAT']:.2f} Lakhs ({ym['PAT %']:.1f}% margin)\n"
                             f"Students Impacted: {students:,}\n"
                             f"Schools Partnered: {schools:,}\n"
-                            f"This represents OMOTEC's complete annual performance for the financial year {year}."
+                            f"This represents the complete annual performance for the financial year {year}."
                         )
                         metadatas.append({"type": "year_summary", "year": str(year), "indexed_at": datetime.now().isoformat()})
                         ids.append(doc_id)
@@ -166,7 +166,7 @@ class FinancialRAG:
                 f"Operational Impact Metrics (All Years):\n"
                 f"Unique Students Impacted: {students:,}\n"
                 f"Unique Schools Partnered: {schools:,}\n"
-                f"These represent OMOTEC's total educational impact."
+                f"These represent the total educational impact."
             )
             metadatas.append({"type": "operational_metrics", "year": "all", "indexed_at": datetime.now().isoformat()})
             ids.append("operational_metrics")

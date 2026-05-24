@@ -102,7 +102,7 @@ Both are now in `.gitignore`.
 
 ## Change 7: Removed 18 Redundant Documentation Files
 
-**Root directory** — removed: `AI_ASSISTANT_CHANGES.md`, `ALL_CODE_SUMMARY.md`, `CHECKLIST.md`, `COMPLETE_PROJECT_CODE.md`, `COMPLETE_RAG_IMPLEMENTATION.md`, `CONNECT_FRONTEND_TO_BACKEND.md`, `FEATURES.md`, `FILE_STRUCTURE.md`, `FINAL_SETUP_STEPS.md`, `FINAL_SUMMARY.md`, `HOW_IT_WORKS.md`, `MASTER_DOCUMENTATION.md`, `OMOTEC_SETUP.md`, `PROJECT_SUMMARY.md`, `PYTHON_BACKEND_GUIDE.md`, `QUICKSTART.md`, `RAG_IMPLEMENTATION_GUIDE.md`, `SETUP_GUIDE.md`, `START_HERE.md`, `YOUR_SETUP_GUIDE.md`, `financial-dashboard.code-workspace`, `index.html`
+**Root directory** — removed: `AI_ASSISTANT_CHANGES.md`, `ALL_CODE_SUMMARY.md`, `CHECKLIST.md`, `COMPLETE_PROJECT_CODE.md`, `COMPLETE_RAG_IMPLEMENTATION.md`, `CONNECT_FRONTEND_TO_BACKEND.md`, `FEATURES.md`, `FILE_STRUCTURE.md`, `FINAL_SETUP_STEPS.md`, `FINAL_SUMMARY.md`, `HOW_IT_WORKS.md`, `MASTER_DOCUMENTATION.md`, `SETUP.md`, `PROJECT_SUMMARY.md`, `PYTHON_BACKEND_GUIDE.md`, `QUICKSTART.md`, `RAG_IMPLEMENTATION_GUIDE.md`, `SETUP_GUIDE.md`, `START_HERE.md`, `YOUR_SETUP_GUIDE.md`, `financial-dashboard.code-workspace`, `index.html`
 
 **Why:** These appear auto-generated (possibly by Claude or Cursor) and contain overlapping information. They add confusion and size. Replaced with:
 - `SETUP.md` — single authoritative setup guide

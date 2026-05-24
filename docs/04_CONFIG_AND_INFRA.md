@@ -172,7 +172,7 @@ VITE_API_URL=https://api.yourdomain.com
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=your_password
-DB_NAME=omotec_dashboard
+DB_NAME=dashboard
 DB_PORT=3306
 
 GROQ_API_KEY=gsk_...

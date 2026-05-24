@@ -15,7 +15,7 @@ def check_schema():
     cursor = connection.cursor()
     
     print("=" * 70)
-    print("🗄️  OMOTEC Database Schema Check")
+    print("🗄️  Database Schema Check")
     print("=" * 70)
     
     # Check what tables exist

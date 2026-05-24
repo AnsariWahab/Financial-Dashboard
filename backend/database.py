@@ -1,6 +1,6 @@
 """
 Database connection module for MySQL
-Connects to your omotec_dashboard database
+Connects to your dashboard database
 """
 import mysql.connector
 from mysql.connector import Error
@@ -16,7 +16,7 @@ DB_CONFIG = {
     'host': os.getenv('DB_HOST', '127.0.0.1'),
     'user': os.getenv('DB_USER', 'root'),
     'password': os.getenv('DB_PASSWORD', ''),
-    'database': os.getenv('DB_NAME', 'omotec_dashboard'),
+    'database': os.getenv('DB_NAME', 'dashboard'),
     'port': int(os.getenv('DB_PORT', 3306)),
 }
 

@@ -26,7 +26,7 @@ const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8000
 const WELCOME_MESSAGE: ChatMessage = {
   role: 'assistant',
   content:
-    "👋 Hello! I'm your OMOTEC financial AI assistant with real-time access " +
+    "👋 Hello! I'm your financial AI assistant with real-time access " +
     "to your database. I can analyze your financial performance, compare " +
     "segments, and answer questions about revenue, expenses, profitability, " +
     "and operational metrics.\n\nI also remember what we've discussed — so " +

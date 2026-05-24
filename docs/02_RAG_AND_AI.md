@@ -5,7 +5,7 @@
 
 ## What Problem Does RAG Solve?
 
-The AI assistant needs to answer questions about OMOTEC's financial data. The naive approach would be to dump all database rows into every prompt — but that would:
+The AI assistant needs to answer questions about the financial data. The naive approach would be to dump all database rows into every prompt — but that would:
 - Cost a lot (large prompts = expensive API calls)
 - Be slow (more tokens = slower response)
 - Often exceed the model's context window limit
@@ -109,7 +109,7 @@ A keyword search for *"FY25_26 income"* would miss a chunk that says *"Annual Re
 
 ```
 SYSTEM:
-You are a financial analyst for OMOTEC Educational Services.
+You are a financial analyst for the Educational Services.
 Use ONLY the data provided below to answer questions.
 Be specific with numbers. Express amounts in Lakhs.
 
@@ -159,7 +159,7 @@ self.collection = self.client.get_collection("financials", ...)
 # OR if not found:
 self.collection = self.client.create_collection("financials", ...)
 ```
-A ChromaDB **collection** is like a table — a named container for vectors. One collection holds all OMOTEC financial chunks.
+A ChromaDB **collection** is like a table — a named container for vectors. One collection holds all the financial chunks.
 
 ### `build_embedding_function()`
 Returns the embedding model based on `EMBEDDING_BACKEND` env var. Called once in `__init__` and used for both indexing and querying (must be the same model both ways — otherwise the vector spaces don't match).
@@ -204,7 +204,7 @@ Initializes the Groq client. Groq provides fast inference for open-source LLMs (
 
 ### `build_system_prompt(context)`
 Builds the system prompt that tells the LLM:
-- Its role (OMOTEC financial analyst)
+- Its role (The financial analyst)
 - What data it has access to (the RAG context)
 - How to format answers (use Lakhs, be specific)
 - What not to do (don't make up numbers not in the data)

@@ -71,7 +71,7 @@ This is why RAG works even when users ask the same thing in different words — 
 1. The retrieved chunks are formatted into a context block
 2. A carefully designed prompt is built:
    ```
-   System: "You are a financial analyst for OMOTEC.
+   System: "You are a financial analyst for Demo Company.
             Here is the relevant data: [retrieved chunks]
             Answer based only on this data."
    

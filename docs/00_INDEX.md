@@ -24,7 +24,7 @@ Vite Dev Server
     ▼
 FastAPI Backend (localhost:8000)
     │
-    ├── database.py ──────────► MySQL (omotec_dashboard)
+    ├── database.py ──────────► MySQL (dashboard)
     │       │
     │       └── returns DataFrame
     │

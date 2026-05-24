@@ -49,8 +49,8 @@ Then unzip there.
 
 Open MySQL and run:
 ```sql
-CREATE DATABASE omotec_dashboard;
-USE omotec_dashboard;
+CREATE DATABASE dashboard;
+USE dashboard;
 ```
 
 Then run the schema and seed scripts:
@@ -74,7 +74,7 @@ cd backend
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=your_mysql_password
-DB_NAME=omotec_dashboard
+DB_NAME=dashboard
 DB_PORT=3306
 
 # Get free key at https://console.groq.com
