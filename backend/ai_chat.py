@@ -36,8 +36,8 @@ ROUTING RULES — follow exactly in order:
 4. If a tool returns no results → try Financial_Explainer as fallback
 
 CRITICAL RULES:
-- PnL_Calculator input MUST be ONE combined string: 'Full P&L for centre segment FY25-26 in Lakhs'
-  NEVER pass separate keys like source_year, segment, unit — it will fail with an error
+- PnL_Calculator input MUST be ONE combined string: 'Full P&L or PNL for centre segment FY25-26 in Lakhs'
+  NEVER pass separate keys like source_year, segment, unit — it will fail with an error and For Individual Segments not for Overall, only give the PNL or P&L till the Gross margin line, not the full breakdown.
 - SQL results are already converted to Lakhs or Crores — do NOT convert again
 - Use ₹ symbol for all monetary values, always state the unit (Lakhs or Crores)
 - Always mention which year and segment your answer refers to

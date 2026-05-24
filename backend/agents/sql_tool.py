@@ -29,7 +29,7 @@ COLUMNS:
 
 IMPORTANT RULES FOR QUERY GENERATION:
 1. source_year uses UNDERSCORES: FY25_26 not FY25-26
-2. To get Revenue: WHERE pnl_categories = 'Revenue'
+2. To get Revenue or Income: WHERE pnl_categories = 'Revenue'
 3. To get Expenses: WHERE pnl_categories != 'Revenue'
 4. To get Gross Profit: Revenue minus Direct Expense (use subqueries)
 5. value column is in RAW RUPEES (individual rupees, not thousands or lakhs).
