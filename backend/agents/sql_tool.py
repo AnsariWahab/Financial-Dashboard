@@ -4,7 +4,8 @@ This is the most important tool — gives the agent real numbers from the DB.
 """
 import os
 import re
-from langchain_groq import ChatGroq
+import time
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from database import get_db_connection
 from dotenv import load_dotenv
@@ -25,7 +26,7 @@ COLUMNS:
   value           DECIMAL  — raw value in INR (NOT lakhs, NOT crores — raw rupees)
   Student_name    VARCHAR  — school/student name
   school_type     VARCHAR  — e.g. STEM LAB
-  research_category VARCHAR — values: Research Paper, Research Competition
+  research_category VARCHAR — values: Research Project, Research Competition, Patent
 
 IMPORTANT RULES FOR QUERY GENERATION:
 1. source_year uses UNDERSCORES: FY25_26 not FY25-26
@@ -88,13 +89,19 @@ def is_safe_query(sql: str) -> bool:
     return not any(word in upper for word in forbidden)
 
 
-# One shared LLM instance for SQL generation (8B is fast enough for SQL)
-_sql_llm = ChatGroq(
-    model="llama-3.1-8b-instant",
+# One shared LLM instance for SQL generation
+_sql_llm = ChatOpenAI(
+    model="google/gemini-2.0-flash-001",
     temperature=0,
-    api_key=os.getenv("GROQ_API_KEY")
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    max_tokens=300,
+    base_url="https://openrouter.ai/api/v1",
+    default_headers={
+        "HTTP-Referer": "http://localhost:5173",
+        "X-Title": "Omotec Financial Dashboard",
+    },
 )
-print(f"🔍 SQL model: llama-3.1-8b-instant")
+print(f"🔍 SQL model: google/gemini-2.0-flash-001 (via OpenRouter)")
 
 
 def run_sql_tool(question: str) -> str:
@@ -106,12 +113,25 @@ def run_sql_tool(question: str) -> str:
     4. Return results as formatted string
     """
     try:
-        # Step 1 — Generate SQL
+        # Step 1 — Generate SQL (with auto-retry on rate limits)
         messages = [
             SystemMessage(content=SYSTEM_PROMPT),
             HumanMessage(content=question)
         ]
-        response = _sql_llm.invoke(messages)
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                response = _sql_llm.invoke(messages)
+                break
+            except Exception as e:
+                error_str = str(e)
+                if "429" in error_str or "rate_limit" in error_str:
+                    if attempt < max_retries - 1:
+                        wait = 10 * (attempt + 1)
+                        print(f"⏳ SQL rate limit hit, retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
+                        time.sleep(wait)
+                        continue
+                raise
         raw_sql = response.content.strip()
 
         if "CANNOT_QUERY" in raw_sql:

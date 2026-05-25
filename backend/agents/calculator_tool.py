@@ -59,20 +59,25 @@ def run_calculator_tool(question: str) -> str:
             label.append(source_year)
         label_str = " — ".join(label) if label else "All Segments, All Years"
 
-        return (
-            f"P&L Measures for {label_str} (in {unit}):\n"
-            f"  Revenue:          ₹{m['Revenue']:.2f}\n"
-            f"  Direct Expense:   ₹{m['Direct Expense']:.2f}\n"
-            f"  Gross Profit:     ₹{m['Gross Profit']:.2f} ({m['Gross Profit %']:.1f}%)\n"
-            f"  Indirect Expense: ₹{m['Indirect Expense']:.2f}\n"
-            f"  EBITDA:           ₹{m['EBITDA']:.2f} ({m['EBITDA %']:.1f}%)\n"
-            f"  Depreciation:     ₹{m['Depreciation']:.2f}\n"
-            f"  EBIT:             ₹{m['EBIT']:.2f}\n"
-            f"  Interest:         ₹{m['Interest']:.2f}\n"
-            f"  PBT:              ₹{m['PBT']:.2f}\n"
-            f"  Tax:              ₹{m['Tax']:.2f}\n"
-            f"  PAT:              ₹{m['PAT']:.2f} ({m['PAT %']:.1f}%)\n"
-        )
+        lines = [
+            f"P&L Measures for {label_str} (in {unit}):",
+            f"  Revenue:          ₹{m['Revenue']:.2f}",
+            f"  Direct Expense:   ₹{m['Direct Expense']:.2f}",
+            f"  Gross Profit:     ₹{m['Gross Profit']:.2f} ({m['Gross Profit %']:.1f}%)",
+        ]
+        # For individual segments, only show up to Gross Margin
+        if not segment:
+            lines += [
+                f"  Indirect Expense: ₹{m['Indirect Expense']:.2f}",
+                f"  EBITDA:           ₹{m['EBITDA']:.2f} ({m['EBITDA %']:.1f}%)",
+                f"  Depreciation:     ₹{m['Depreciation']:.2f}",
+                f"  EBIT:             ₹{m['EBIT']:.2f}",
+                f"  Interest:         ₹{m['Interest']:.2f}",
+                f"  PBT:              ₹{m['PBT']:.2f}",
+                f"  Tax:              ₹{m['Tax']:.2f}",
+                f"  PAT:              ₹{m['PAT']:.2f} ({m['PAT %']:.1f}%)",
+            ]
+        return "\n".join(lines) + "\n"
 
     except Exception as e:
         print(f"❌ Calculator Tool error: {e}")

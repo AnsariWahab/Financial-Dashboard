@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from typing import Dict, Any, Optional
 from datetime import datetime
 from pydantic import BaseModel
+from agents.insights_tool import generate_insights
 from database import get_financials, get_distinct_values, execute_query
 from measures import (
     get_all_pnl_measures,
@@ -97,6 +98,21 @@ async def startup_prewarm():
                     "grossMargin": m['Gross Profit %']
                 })
             cache_set(make_key("seg", None, None, "Lakhs"), segments_result)
+
+            # Pre-cache insights for ALL segments in parallel (so first page visit is instant)
+            from agents.insights_tool import generate_insights
+            import threading
+            def prewarm_insights(seg):
+                try:
+                    ins = generate_insights("FY25-26", seg, "Lakhs")
+                    key = make_key("insights", seg, "FY25-26", "Lakhs")
+                    cache_set(key, {"insights": ins})
+                    print(f"✅ Pre-warmed insights for {seg}")
+                except Exception as e:
+                    print(f"⚠️  Insights pre-warm skipped for {seg}: {e}")
+            for seg in ["overview", "centre", "school", "research"]:
+                t = threading.Thread(target=prewarm_insights, args=(seg,), daemon=True)
+                t.start()
             print("✅ Cache pre-warmed — first page load will be fast")
     except Exception as e:
         print(f"⚠️  Cache pre-warm failed (non-fatal): {e}")
@@ -476,6 +492,26 @@ def get_monthly_trend(
         print(f"❌ Error in get_monthly_trend: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/insights")
+def get_insights(source_year: str = "FY25-26", segment: str = "overview", unit: str = "Lakhs"):
+    key = make_key("insights", segment, source_year, unit)
+    cached = cache_get(key)
+    if cached:
+        return cached
+
+    # Check if API key is configured (avoid silent failure)
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    if not api_key or api_key == "sk-or-v1-your_openrouter_key_here":
+        result = {"insights": [{"text": "⚠️ AI insights unavailable — set OPENROUTER_API_KEY in backend/.env", "severity": "caution"}]}
+        cache_set(key, result)
+        return result
+
+    insights = generate_insights(source_year, segment, unit)
+    result = {"insights": insights}
+    cache_set(key, result)
+    return result
+
+
 
 @app.get("/api/impact-metrics")
 def get_impact_metrics(
@@ -499,7 +535,7 @@ def get_impact_metrics(
             "uniqueStudents": get_unique_students(df),
             "uniqueSchools": get_unique_schools(df),
             "stemLabs": get_stem_labs(df),
-            "researchPapers": get_research_count(df, "Research Paper"), "researchCompetitions": get_research_count(df, "Research Competition"), "researchCount": get_research_count(df, "Research Paper") + get_research_count(df, "Research Competition")
+            "researchPapers": get_research_count(df, "Research Project"), "researchCompetitions": get_research_count(df, "Research Competition"), "researchCount": get_research_count(df, "Research Project") + get_research_count(df, "Research Competition")
         }
         cache_set(key, result)
         return result

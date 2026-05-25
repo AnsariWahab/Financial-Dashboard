@@ -5,7 +5,7 @@
 - Python 3.10+
 - Node.js 18+
 - MySQL 8.0+
-- A free Groq API key → https://console.groq.com
+- An OpenRouter API key → https://openrouter.ai/keys
 
 ---
 
@@ -76,9 +76,9 @@ DB_USER=root
 DB_PASSWORD=your_mysql_password
 DB_NAME=dashboard
 DB_PORT=3306
+# Get key at https://openrouter.ai/keys
 
-# Get free key at https://console.groq.com
-GROQ_API_KEY=gsk_your_key_here
+OPENROUTER_API_KEY=sk-or-v1-your_key_here
 
 # Lightweight ONNX embedder — no PyTorch needed
 EMBEDDING_BACKEND=onnx
@@ -145,9 +145,9 @@ Frontend: http://localhost:5173
 ### "OSError: No such file or directory" on pip install
 → Your project folder path is too long (Windows 260-char limit).
 → Move project to `C:\dev\dashboard\` and reinstall.
+### "OPENROUTER_API_KEY not set"
 
-### "GROQ_API_KEY not set"
-→ Edit `backend/.env` and paste your key from https://console.groq.com
+→ Edit `backend/.env` and paste your key from https://openrouter.ai/keys
 
 ### Database connection refused
 → Check MySQL is running. Try `DB_HOST=127.0.0.1` instead of `localhost`.

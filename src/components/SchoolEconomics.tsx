@@ -6,6 +6,7 @@ import {
   BarChart
 } from 'recharts';
 import { api, PnLMeasures, MonthlyTrend, ImpactMetrics } from '../services/api';
+import InsightsPanel from './InsightsPanel';
 
 interface TopSchool {
   school: string;
@@ -82,23 +83,23 @@ export const SchoolEconomics = () => {
     <div className="space-y-6">
 
       {/* ── Header ── */}
-      <div className="bg-white px-6 py-4 rounded-lg shadow-md flex items-center gap-3">
+      <div className="bg-white dark:bg-gray-800 px-6 py-4 rounded-lg shadow-md flex items-center gap-3">
         <GraduationCap className="w-6 h-6 text-orange-600" />
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">School Economics</h2>
-          <p className="text-sm text-gray-500">School segment financial performance and student metrics</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">School Economics</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">School segment financial performance and student metrics</p>
         </div>
       </div>
 
       {/* ── Filters Bar ── */}
-      <div className="flex flex-wrap items-center gap-4 bg-white px-5 py-3 rounded-lg shadow-sm border border-gray-100">
+      <div className="flex flex-wrap items-center gap-4 bg-white dark:bg-gray-800 px-5 py-3 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
 
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-500 whitespace-nowrap">Year:</span>
           <select
             value={sourceYear}
             onChange={(e) => setSourceYear(e.target.value)}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer"
+            className="text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer"
           >
             {availableYears.map((y) => (
               <option key={y} value={y}>{y}</option>
@@ -107,11 +108,11 @@ export const SchoolEconomics = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-500">Unit:</span>
+          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Unit:</span>
           <select
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer"
+            className="text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer"
           >
             <option value="Lakhs">Lakhs</option>
             <option value="Crores">Crores</option>
@@ -165,15 +166,15 @@ export const SchoolEconomics = () => {
       </div>
 
       {/* ── P&L Summary Table ── */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-lg font-semibold mb-4 text-gray-900">P&L Summary</h3>
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+        <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">P&L Summary</h3>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Particulars</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Amount ({unit})</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">%</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Particulars</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Amount ({unit})</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">%</th>
               </tr>
             </thead>
             <tbody>
@@ -197,8 +198,8 @@ export const SchoolEconomics = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* Monthly Revenue & Gross Margin */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Monthly Revenue & Gross Margin</h3>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Monthly Revenue & Gross Margin</h3>
           <ResponsiveContainer width="100%" height={320}>
             <ComposedChart data={monthlyData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -254,10 +255,10 @@ export const SchoolEconomics = () => {
         </div>
 
         {/* Top 10 Schools by Revenue */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Top 10 Schools by Revenue</h3>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Top 10 Schools by Revenue</h3>
           {topSchools.length === 0 ? (
-            <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
+            <div className="flex items-center justify-center h-64 text-gray-400 dark:text-gray-500 text-sm">
               No school data available
             </div>
           ) : (
@@ -289,34 +290,10 @@ export const SchoolEconomics = () => {
           )}
         </div>
 
-      </div>{/* end charts grid */}
-
-      {/* ── Insights ── */}
-      <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-lg border border-orange-200">
-        <h3 className="text-lg font-semibold mb-3 text-gray-900">🎓 School Segment Insights</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h4 className="font-semibold text-gray-700 mb-2">Financial Performance</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
-              <li>✅ Revenue: <strong>₹{pnlData.Revenue.toFixed(2)} {unit}</strong></li>
-              <li>✅ Gross Profit Margin: <strong>{pnlData['Gross Profit %'].toFixed(1)}%</strong></li>
-              <li>✅ EBITDA Margin: <strong>{pnlData['EBITDA %'].toFixed(1)}%</strong></li>
-              <li>✅ PAT Margin: <strong>{pnlData['PAT %'].toFixed(1)}%</strong></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-gray-700 mb-2">Impact Metrics</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
-              <li>👥 Students Reached: <strong>{impactData?.uniqueStudents.toLocaleString()}</strong></li>
-              <li>🏫 Schools Partnered: <strong>{impactData?.uniqueSchools.toLocaleString()}</strong></li>
-              <li>🔬 STEM Labs Installed: <strong>{impactData?.stemLabs.toLocaleString()}</strong></li>
-              {topSchools.length > 0 && (
-                <li>🏆 Top School: <strong>{topSchools[0].school}</strong></li>
-              )}
-            </ul>
-          </div>
-        </div>
       </div>
+
+      {/* ── AI Insights (replaces old School Segment Insights) ── */}
+      <InsightsPanel sourceYear={sourceYear} segment="school" unit={unit} />
 
     </div>
   );
@@ -335,12 +312,12 @@ interface MetricCardProps {
 
 const MetricCard = ({ title, value, unit, icon, color, positive }: MetricCardProps) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-gray-600 mb-1">{title}</p>
-          <p className={`text-2xl font-bold ${positive ? 'text-gray-900' : 'text-red-600'}`}>{value}</p>
-          {unit && <p className="text-xs text-gray-500 mt-1">{unit}</p>}
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{title}</p>
+          <p className={`text-2xl font-bold ${positive ? 'text-gray-900 dark:text-gray-100' : 'text-red-600'}`}>{value}</p>
+          {unit && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{unit}</p>}
         </div>
         <div className={`p-3 rounded-full ${color} text-white`}>
           {icon}
@@ -363,12 +340,12 @@ interface PnLRowProps {
 const PnLRow = ({ label, value, percent, bold, indent }: PnLRowProps) => {
   const isNegative = value < 0;
   return (
-    <tr className={`border-b border-gray-100 ${bold ? 'bg-gray-50 font-semibold' : ''}`}>
-      <td className={`py-3 px-4 text-gray-900 ${indent ? 'pl-8 text-sm' : ''}`}>{label}</td>
-      <td className={`text-right py-3 px-4 ${isNegative ? 'text-red-600' : 'text-gray-900'}`}>
+    <tr className={`border-b border-gray-100 dark:border-gray-700 ${bold ? 'bg-gray-50 dark:bg-gray-700 font-semibold' : ''}`}>
+      <td className={`py-3 px-4 text-gray-900 dark:text-gray-100 ${indent ? 'pl-8 text-sm' : ''}`}>{label}</td>
+      <td className={`text-right py-3 px-4 ${isNegative ? 'text-red-600' : 'text-gray-900 dark:text-gray-100'}`}>
         ₹{value.toFixed(2)}
       </td>
-      <td className={`text-right py-3 px-4 ${isNegative ? 'text-red-600' : 'text-gray-900'}`}>
+      <td className={`text-right py-3 px-4 ${isNegative ? 'text-red-600' : 'text-gray-900 dark:text-gray-100'}`}>
         {percent.toFixed(1)}%
       </td>
     </tr>

@@ -67,11 +67,9 @@ zip -r project.zip . -x "*/node_modules/*" -x "*/venv/*" -x "*/__pycache__/*" -x
 - A real MySQL password
 
 **What changed:**
-- `.env` now has placeholder values (`your_groq_api_key_here`)
-- `.env.example` added as a template for new developers
-- `.gitignore` excludes `.env` so it's never committed
+- `.env` now has placeholder values (`sk-or-v1-your_openrouter_key_here`)
 
-**Action required:** Get a new Groq API key at https://console.groq.com and paste it into `backend/.env`.
+  **Action required:** Get an OpenRouter API key at https://openrouter.ai/keys and paste it into `backend/.env`.
 
 ---
 
