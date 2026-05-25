@@ -212,7 +212,7 @@ mysql-connector-python → MySQL driver (DBAPI2, not SQLAlchemy)
 python-dotenv    → Loads .env file into os.environ
 pydantic         → Data validation for request/response schemas
 pandas           → DataFrame operations for financial calculations
-groq             → Groq API client (LLaMA model)
+langchain-openai → OpenRouter API client (OpenAI-compatible models)
 chromadb         → Local vector database for RAG
 ```
 

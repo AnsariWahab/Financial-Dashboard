@@ -148,22 +148,22 @@ export const ImpactMetrics = () => {
     <div className="space-y-6">
 
       {/* ── Header ── */}
-      <div className="bg-white px-6 py-4 rounded-lg shadow-md flex items-center gap-3">
+      <div className="bg-white dark:bg-gray-800 px-6 py-4 rounded-lg shadow-md flex items-center gap-3">
         <Target className="w-6 h-6 text-indigo-600" />
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Impact Metrics</h2>
-          <p className="text-sm text-gray-500">Operational KPIs and social impact indicators</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Impact Metrics</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Operational KPIs and social impact indicators</p>
         </div>
       </div>
 
       {/* ── Filters Bar ── */}
-      <div className="flex flex-wrap items-center gap-4 bg-white px-5 py-3 rounded-lg shadow-sm border border-gray-100">
+      <div className="flex flex-wrap items-center gap-4 bg-white dark:bg-gray-800 px-5 py-3 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-500 whitespace-nowrap">Year:</span>
+          <span className="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Year:</span>
           <select
             value={sourceYear}
             onChange={(e) => setSourceYear(e.target.value)}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+            className="text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
           >
             {availableYears.map((y) => (
               <option key={y} value={y}>{y}</option>
@@ -219,30 +219,30 @@ export const ImpactMetrics = () => {
 
       {/* ── Year-over-Year Comparison ── */}
       {yoyRows.length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
             Year-over-Year Comparison
-            <span className="ml-2 text-sm font-normal text-gray-500">
+            <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
               {sourceYear} vs {prevYear}
             </span>
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Metric</th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">{prevYear}</th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">{sourceYear}</th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Change</th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">% Change</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Metric</th>
+                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">{prevYear}</th>
+                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">{sourceYear}</th>
+                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Change</th>
+                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">% Change</th>
                 </tr>
               </thead>
               <tbody>
                 {yoyRows.map((row) => (
-                  <tr key={row.label} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 font-medium text-gray-900">{row.label}</td>
-                    <td className="text-right py-3 px-4 text-gray-600">{row.previous.toLocaleString()}</td>
-                    <td className="text-right py-3 px-4 font-semibold text-gray-900">{row.current.toLocaleString()}</td>
+                  <tr key={row.label} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{row.label}</td>
+                    <td className="text-right py-3 px-4 text-gray-600 dark:text-gray-400">{row.previous.toLocaleString()}</td>
+                    <td className="text-right py-3 px-4 font-semibold text-gray-900 dark:text-gray-100">{row.current.toLocaleString()}</td>
                     <td className={`text-right py-3 px-4 font-medium ${row.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {row.change >= 0 ? '+' : ''}{row.change.toLocaleString()}
                     </td>
@@ -267,10 +267,10 @@ export const ImpactMetrics = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* Monthly Student Trend */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Monthly Student Activity</h3>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Monthly Student Activity</h3>
           {studentTrend.length === 0 ? (
-            <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
+            <div className="flex items-center justify-center h-64 text-gray-400 dark:text-gray-500 text-sm">
               No monthly data available
             </div>
           ) : (
@@ -296,8 +296,8 @@ export const ImpactMetrics = () => {
 
         {/* YoY Bar Chart */}
         {yoyRows.length > 0 ? (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
               {sourceYear} vs {prevYear}
             </h3>
             <ResponsiveContainer width="100%" height={280}>
@@ -313,7 +313,7 @@ export const ImpactMetrics = () => {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="bg-white p-6 rounded-lg shadow-md flex items-center justify-center text-gray-400 text-sm">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
             Select a specific year to see year-over-year comparison
           </div>
         )}
@@ -362,7 +362,7 @@ interface LargeMetricCardProps {
 
 const LargeMetricCard = ({ title, value, subtitle, icon, gradient }: LargeMetricCardProps) => {
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
       <div className={`bg-gradient-to-r ${gradient} p-6 text-white`}>
         <div className="flex items-center justify-between">
           <div>
@@ -372,8 +372,8 @@ const LargeMetricCard = ({ title, value, subtitle, icon, gradient }: LargeMetric
           <div className="opacity-80">{icon}</div>
         </div>
       </div>
-      <div className="p-4 bg-gray-50">
-        <p className="text-sm text-gray-600">{subtitle}</p>
+      <div className="p-4 bg-gray-50 dark:bg-gray-700">
+        <p className="text-sm text-gray-600 dark:text-gray-400">{subtitle}</p>
       </div>
     </div>
   );
@@ -389,12 +389,12 @@ interface ImpactItemProps {
 
 const ImpactItem = ({ label, value, description }: ImpactItemProps) => {
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm">
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
       <div className="flex items-center justify-between mb-1">
-        <span className="font-semibold text-gray-900">{label}</span>
-        <span className="text-2xl font-bold text-gray-900">{value.toLocaleString()}</span>
+        <span className="font-semibold text-gray-900 dark:text-gray-100">{label}</span>
+        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value.toLocaleString()}</span>
       </div>
-      <p className="text-xs text-gray-600">{description}</p>
+      <p className="text-xs text-gray-600 dark:text-gray-400">{description}</p>
     </div>
   );
 };

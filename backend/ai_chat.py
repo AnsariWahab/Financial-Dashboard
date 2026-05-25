@@ -1,12 +1,12 @@
 """
-Multi-Agent AI Chat — LangGraph + Groq
+Multi-Agent AI Chat — LangGraph + OpenRouter
 Uses create_react_agent from langgraph.prebuilt (correct for LangChain 1.3+)
-Tools use StructuredTool + Pydantic for clean Groq-compatible schema
+Tools use StructuredTool + Pydantic for clean schema
 """
 import os
 from dotenv import load_dotenv
 
-from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 from langchain_core.tools import StructuredTool
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.prebuilt import create_react_agent
@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 from agents.sql_tool import run_sql_tool
 from agents.calculator_tool import run_calculator_tool
 from agents.explainer_tool import run_explainer_tool
+from rag_system import rag
 
 load_dotenv()
 
@@ -22,40 +23,32 @@ MAX_HISTORY_TURNS = 6
 
 # ── System prompt ─────────────────────────────────────────────────────────────
 
-SYSTEM_PROMPT = """You are a professional financial analyst AI assistant for a financial dashboard.
+SYSTEM_PROMPT = """You are a financial analyst AI for a dashboard.
 
-You have three tools:
-- SQL_Database: For single specific metrics only — total revenue, expense totals, student counts, branch comparisons, monthly data
-- PnL_Calculator: For ANY full P&L request or margin calculations — gross profit %, EBITDA %, PAT %, full breakdown
-- Financial_Explainer: For conceptual questions (what is EBITDA?) or as last fallback
+Tools:
+- SQL_Database: single metrics (revenue, counts, branch data, monthly)
+- PnL_Calculator: margins (GP%, EBITDA%, PAT%) and full P&L breakdown
+- Financial_Explainer: conceptual questions (what is EBITDA?)
 
-ROUTING RULES — follow exactly in order:
-1. User asks for 'P&L breakdown', 'full P&L', 'gross profit %', 'EBITDA', 'EBITDA %', 'PAT', 'PAT %', 'margins' → PnL_Calculator FIRST, skip SQL entirely
-2. User asks for a single number like 'total revenue', 'how many students', 'which branch has most revenue' → SQL_Database
-3. User asks 'what is X' or 'explain X' or asks a conceptual question → Financial_Explainer
-4. If a tool returns no results → try Financial_Explainer as fallback
+Routing:
+- P&L, PNL, margins, GP%, EBITDA%, PAT% → PnL_Calculator
+- single number (revenue, students, branches) → SQL_Database
+- "what is", "explain" → Financial_Explainer
+- tool returns nothing → fallback to Financial_Explainer
 
-CRITICAL RULES:
-- PnL_Calculator input MUST be ONE combined string: 'Full P&L or PNL for centre segment FY25-26 in Lakhs'
-  NEVER pass separate keys like source_year, segment, unit — it will fail with an error and For Individual Segments not for Overall, only give the PNL or P&L till the Gross margin line, not the full breakdown.
-- SQL results are already converted to Lakhs or Crores — do NOT convert again
-- Use ₹ symbol for all monetary values, always state the unit (Lakhs or Crores)
-- Always mention which year and segment your answer refers to
-- source_year in DB uses underscores: FY25_26 not FY25-26
-- Never make up numbers — only use what tools return
-- For short follow-up questions, use the same year and unit as the previous question
-- Never add filters not explicitly mentioned in the question
-- When comparing segments, query each one separately
-- For conceptual questions (what is X, explain X, why does X matter),
-  call Financial_Explainer immediately with just the concept name.
-  Do not call SQL_Database first. Do not think too long.
-  Example input to Financial_Explainer: 'EBITDA definition and importance'
-- Never repeat information already given in the conversation history
-- Each answer should only address the current question, not re-explain previous answers
-- If the previous answer already explained a concept, do not explain it again
-- You MUST always call at least one tool before giving a Final Answer
-- For 'what is X' questions, ALWAYS call Financial_Explainer — never answer from memory
-- Never say 'I don't have information' without first trying Financial_Explainer  
+Rules:
+- PnL_Calculator input: ONE combined string like 'Full P&L for centre FY25-26 in Lakhs'
+- NEVER pass source_year/segment/unit as separate params
+- Segment P&L = only up to Gross Margin line. Company-wide = full P&L
+- SQL results already in Lakhs/Crores — do NOT convert again
+- Use ₹ symbol, mention unit (Lakhs/Crores), mention year and segment
+- source_year in DB: FY25_26 (underscore)
+- Never make up numbers — only use tool output
+- For follow-ups, reuse previous year/unit
+- Compare segments by querying each separately
+- Always call a tool before answering. Never answer from memory.
+- Never repeat info already in conversation history
+- Keep answers concise — just the facts.
 """
 
 # ── Pydantic input schemas (required for Groq tool calling) ──────────────────
@@ -126,19 +119,24 @@ TOOLS = [
 
 class FinancialAIChat:
     def __init__(self):
-        self.api_key = os.getenv("GROQ_API_KEY")
+        self.api_key = os.getenv("OPENROUTER_API_KEY")
 
-        if not self.api_key or self.api_key == "your_groq_api_key_here":
-            print("⚠️  Warning: GROQ_API_KEY not set in .env file")
+        if not self.api_key or self.api_key == "sk-or-v1-your_openrouter_key_here":
+            print("⚠️  Warning: OPENROUTER_API_KEY not set in .env file")
             self.agent = None
         else:
-            llm = ChatGroq(
-                model="llama-3.3-70b-versatile",  # more powerful model for orchestration
+            llm = ChatOpenAI(
+                model="google/gemini-2.0-flash-001",
                 temperature=0.1,
                 api_key=self.api_key,
-                max_tokens=800,
+                max_tokens=400,
+                base_url="https://openrouter.ai/api/v1",
+                default_headers={
+                    "HTTP-Referer": "http://localhost:5173",
+                    "X-Title": "Omotec Financial Dashboard",
+                },
             )
-            print(f"🤖 Orchestrator model: llama-3.3-70b-versatile")
+            print(f"🤖 Orchestrator: google/gemini-2.0-flash-001 (via OpenRouter)")
 
             self.agent = create_react_agent(
                 model=llm,
@@ -173,7 +171,7 @@ class FinancialAIChat:
         if not self.agent:
             return {
                 "error": True,
-                "message": "❌ Groq AI not configured. Set GROQ_API_KEY in backend/.env",
+                "message": "❌ AI not configured. Set OPENROUTER_API_KEY in backend/.env",
                 "history": history or [],
             }
 
@@ -181,8 +179,25 @@ class FinancialAIChat:
             history = []
 
         try:
-            # Enrich question with dashboard filter context
+            # ── Q&A Memory: retrieve similar past Q&As ──
+            qa_context = ""
+            try:
+                past_qas = rag.retrieve_qa(user_message, n_results=3)
+                if past_qas:
+                    qa_lines = []
+                    for qa in past_qas:
+                        if qa["relevance_score"] > 0.3:
+                            qa_lines.append(qa["content"])
+                    if qa_lines:
+                        qa_context = "Relevant past conversations:\n" + "\n".join(qa_lines) + "\n\n"
+            except Exception as e:
+                print(f"⚠️  Q&A retrieval error (non-fatal): {e}")
+
+            # Enrich question with dashboard filter context + Q&A memory
             enriched_question = user_message
+            context_parts = []
+            if qa_context:
+                context_parts.append(qa_context)
             if filters:
                 year    = filters.get("source_year") or filters.get("year")
                 segment = filters.get("segment")
@@ -192,10 +207,9 @@ class FinancialAIChat:
                 if segment and segment != "All": parts.append(f"segment={segment}")
                 if unit:                         parts.append(f"unit={unit}")
                 if parts:
-                    enriched_question = (
-                        f"{user_message} "
-                        f"[Dashboard context: {', '.join(parts)}]"
-                    )
+                    context_parts.append(f"[Dashboard context: {', '.join(parts)}]")
+            if context_parts:
+                enriched_question = "\n".join(context_parts) + "\n\n" + user_message
 
             # Build message list with history
             messages = self._build_messages(enriched_question, history)
@@ -203,7 +217,7 @@ class FinancialAIChat:
             # Invoke the LangGraph agent
             result = self.agent.invoke(
                 {"messages": messages},
-                config={"recursion_limit": 20}
+                config={"recursion_limit": 12}
             )
 
             # Extract final answer from last AI message
@@ -219,6 +233,12 @@ class FinancialAIChat:
                     "Please try rephrasing your question."
                 )
 
+            # ── Q&A Memory: store this exchange ──
+            try:
+                rag.store_qa(user_message, assistant_reply)
+            except Exception as e:
+                print(f"⚠️  Failed to store Q&A (non-fatal): {e}")
+
             # Update and trim history
             updated_history = list(history) + [
                 {"role": "user",      "content": user_message},
@@ -233,7 +253,7 @@ class FinancialAIChat:
                 "message": assistant_reply,
                 "history": updated_history,
                 "rag_enabled": True,
-                "documents_retrieved": 0,
+                "documents_retrieved": len(past_qas) if qa_context else 0,
                 "relevance_scores": [],
             }
 

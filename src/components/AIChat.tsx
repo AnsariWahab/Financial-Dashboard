@@ -122,10 +122,10 @@ export const AIChat = () => {
   const turnCount = Math.floor(history.length / 2);
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-lg shadow-lg">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg">
 
       {/* ── Header ── */}
-      <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900">
         <div className="flex items-center gap-2">
           <Bot className="w-6 h-6 text-white" />
           <h2 className="text-lg font-semibold text-white">AI Financial Assistant</h2>
@@ -166,8 +166,8 @@ export const AIChat = () => {
             <div
               className={`max-w-[80%] rounded-lg p-3 ${
                 message.role === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-900'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
               }`}
             >
               <p className="text-sm whitespace-pre-line">{message.content}</p>
@@ -186,7 +186,7 @@ export const AIChat = () => {
             <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
               <Bot className="w-5 h-5 text-white" />
             </div>
-            <div className="bg-gray-100 rounded-lg p-3">
+            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
               <div className="flex gap-1">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -199,7 +199,7 @@ export const AIChat = () => {
       </div>
 
       {/* ── Input bar ── */}
-      <form onSubmit={handleSubmit} className="p-4 border-t border-gray-200">
+      <form onSubmit={handleSubmit} className="p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="flex gap-2">
           <input
             type="text"
@@ -210,7 +210,7 @@ export const AIChat = () => {
                 ? 'Ask a follow-up or a new question…'
                 : 'Ask about your financial data…'
             }
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             disabled={isLoading}
           />
           <button

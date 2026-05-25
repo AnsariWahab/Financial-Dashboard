@@ -1,0 +1,42 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "username": "omotec-finance",
+  "default_agent": "general",
+  "shell": "powershell",
+  "instructions": [
+    "FULL_CONTEXT.md",
+    "CURRENT_STATE_OPENCODE.md"
+  ],
+  "agent": {
+    "explore": {
+      "model": "openai/gpt-4o-mini",
+      "mode": "all",
+      "description": "Explore the Financial Dashboard codebase - understands React/TypeScript frontend, FastAPI Python backend, MySQL schema, LangGraph AI agents, ChromaDB RAG, and Recharts visualizations"
+    },
+    "general": {
+      "model": "openai/gpt-4o-mini",
+      "mode": "all",
+      "description": "General-purpose agent for working with the Financial Dashboard project. Covers backend (FastAPI, MySQL, LangGraph), frontend (React, TypeScript, Vite, Recharts, Tailwind), and infrastructure tasks."
+    }
+  },
+  "command": {
+    "dev": {
+      "description": "Start the frontend dev server",
+      "template": "Run the Vite dev server with `npm run dev` in the root directory."
+    },
+    "backend": {
+      "description": "Start the FastAPI backend server",
+      "template": "Activate the Python venv in backend/ and run `uvicorn app:app --reload --reload-exclude venv`"
+    },
+    "test": {
+      "description": "Run available tests",
+      "template": "Check package.json for test scripts and run them. Also check backend for pytest tests."
+    }
+  },
+  "permission": {
+    "edit": "allow",
+    "bash": {
+      "*": "allow"
+    }
+  }
+}

@@ -222,6 +222,50 @@ class FinancialRAG:
         if self.collection.count() == 0:
             self.index_financials(force_reindex=True)
 
+    # ── Q&A Memory ──────────────────────────────────────────────────────────
+
+    def store_qa(self, question: str, answer: str):
+        """Store a Q&A pair in ChromaDB for future reference."""
+        qa_id = f"qa_{hash(question.lower().strip())}"
+        try:
+            existing = self.collection.get(ids=[qa_id])
+            if existing and existing["ids"]:
+                return  # Duplicate — already stored
+            doc = f"Q: {question}\nA: {answer}"
+            self.collection.add(
+                documents=[doc],
+                metadatas=[{"type": "qa_pair", "question": question, "indexed_at": datetime.now().isoformat()}],
+                ids=[qa_id],
+            )
+        except Exception as e:
+            print(f"⚠️  Failed to store Q&A: {e}")
+
+    def retrieve_qa(self, query: str, n_results: int = 3) -> list[dict]:
+        """Retrieve similar past Q&A pairs via semantic search."""
+        try:
+            count = self.collection.count()
+            if count == 0:
+                return []
+            results = self.collection.query(
+                query_texts=[query],
+                n_results=min(n_results, count),
+                where={"type": "qa_pair"},
+            )
+            retrieved = []
+            if results and results["documents"]:
+                for i, doc in enumerate(results["documents"][0]):
+                    metadata = results["metadatas"][0][i] if results["metadatas"] else {}
+                    distance = results["distances"][0][i] if results["distances"] else 0
+                    retrieved.append({
+                        "content": doc,
+                        "metadata": metadata,
+                        "relevance_score": 1 - distance,
+                    })
+            return retrieved
+        except Exception as e:
+            print(f"⚠️  Q&A retrieval error: {e}")
+            return []
+
 
 # Global singleton
 rag = FinancialRAG()

@@ -175,7 +175,7 @@ DB_PASSWORD=your_password
 DB_NAME=dashboard
 DB_PORT=3306
 
-GROQ_API_KEY=gsk_...
+OPENROUTER_API_KEY=sk-or-v1-...
 
 EMBEDDING_BACKEND=onnx       # or sentence_transformers
 ANONYMIZED_TELEMETRY=False

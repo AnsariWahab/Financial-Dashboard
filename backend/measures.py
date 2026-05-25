@@ -230,12 +230,14 @@ def get_stem_labs(df):
  
 def get_research_count(df, category):
     """
-    COUNT DISTINCT rows where research_category matches.
-    Used for Research Papers and Research Competitions.
+    Count unique students who participated in a given research category.
     """
-    if 'research_category' not in df.columns or 'id' not in df.columns:
+    if 'research_category' not in df.columns or 'Student_name' not in df.columns:
         return 0
-    return int(df[df['research_category'] == category]['id'].nunique())
+    filtered = df[df['research_category'] == category]
+    if filtered.empty:
+        return 0
+    return int(filtered['Student_name'].nunique())
  
  
 def get_unique_students(df, segment=None):

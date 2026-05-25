@@ -81,6 +81,43 @@ def execute_insert(query, params=None):
         print(f"❌ Error executing insert: {e}")
         return False
 
+def _normalize_month_column(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Normalize the month column: DB may have 'Month' (uppercase M) or 'month'.
+    Also convert string months to datetime and add a 'month_name' column.
+    """
+    if df.empty:
+        return df
+
+    month_col = None
+    for candidate in ["month", "Month", "MONTH"]:
+        if candidate in df.columns:
+            month_col = candidate
+            break
+
+    if month_col is None:
+        return df
+
+    if month_col != "month":
+        df.rename(columns={month_col: "month"}, inplace=True)
+
+    return df
+
+
+def _parse_month_col(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Ensure 'month' column is parsed as datetime and add sortable metadata.
+    Also normalizes month column name (handles DB having 'Month' vs 'month').
+    """
+    df = _normalize_month_column(df)
+    if df.empty or "month" not in df.columns:
+        return df
+
+    if any(c.isdigit() for c in str(df["month"].iloc[0])):
+        df["month"] = pd.to_datetime(df["month"], errors="coerce")
+    return df
+
+
 def get_financials(source_year=None, month=None, segment=None, branch=None):
     """
     Fetch financial data from your database with optional filters.
@@ -98,6 +135,7 @@ def get_financials(source_year=None, month=None, segment=None, branch=None):
     try:
         query = """
         SELECT 
+            id,
             source_year,
             month,
             segment,
@@ -138,6 +176,7 @@ def get_financials(source_year=None, month=None, segment=None, branch=None):
         df = pd.DataFrame(rows)
         if not df.empty:
             df = _convert_decimals(df)
+            df = _parse_month_col(df)
         return df
 
     except Error as e:

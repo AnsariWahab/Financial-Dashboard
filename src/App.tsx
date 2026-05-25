@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Building2,
@@ -7,7 +7,9 @@ import {
   Target,
   MessageSquare,
   Menu,
-  X
+  X,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 import { Overview } from './components/Overview';
@@ -28,6 +30,20 @@ function App() {
   const [currentPage, setCurrentPage] = useState<Page>('overview');
   const [showChat, setShowChat] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('darkMode') === 'true';
+  });
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('darkMode', String(darkMode));
+  }, [darkMode]);
+
+  const toggleDarkMode = () => setDarkMode(prev => !prev);
 
   const menuItems = [
     {
@@ -58,9 +74,9 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 relative overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 relative overflow-x-hidden">
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg sticky top-0 z-40">
+      <header className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 text-white shadow-lg sticky top-0 z-40">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             {/* Left */}
@@ -87,17 +103,26 @@ function App() {
               </div>
             </div>
 
-            {/* AI Button */}
-            <button
-              onClick={() => setShowChat(!showChat)}
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
-            >
-              <MessageSquare className="w-5 h-5" />
+            {/* Right side buttons */}
+            <div className="flex items-center gap-2">
+              {/* Dark Mode Toggle */}
+              <button
+                onClick={toggleDarkMode}
+                className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+                title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              >
+                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
 
-              <span className="hidden sm:inline">
-                AI Assistant
-              </span>
-            </button>
+              {/* AI Button */}
+              <button
+                onClick={() => setShowChat(!showChat)}
+                className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <MessageSquare className="w-5 h-5" />
+                <span className="hidden sm:inline">AI Assistant</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -120,6 +145,7 @@ function App() {
             h-[calc(100vh-73px)]
             w-64
             bg-white
+            dark:bg-gray-800
             shadow-lg
             transition-transform
             duration-300
@@ -156,7 +182,7 @@ function App() {
                     ${
                       isActive
                         ? 'bg-blue-600 text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }
                   `}
                 >
@@ -171,8 +197,8 @@ function App() {
           </nav>
 
           {/* Bottom Info */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
-            <div className="text-xs text-gray-600 space-y-1">
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+            <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
               <p className="font-semibold">
                 💡 Integration Ready
               </p>
@@ -238,6 +264,7 @@ function App() {
           w-full
           sm:w-[420px]
           bg-white
+          dark:bg-gray-800
           shadow-2xl
           z-50
           transition-transform
